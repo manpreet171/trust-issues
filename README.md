@@ -10,6 +10,11 @@
 </p>
 
 <p align="center">
+  Part of <a href="https://singhlabs.dev/trust-issues/">Singh Labs</a> — guardrails for AI coding agents.<br>
+  Created by <a href="https://github.com/manpreet171">Manpreet Singh</a>
+</p>
+
+<p align="center">
   <a href="#install">Install</a> ·
   <a href="#what-it-caught">What it caught</a> ·
   <a href="#why-a-hook-and-not-a-cli">Why a hook</a> ·
