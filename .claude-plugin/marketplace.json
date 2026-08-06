@@ -1,0 +1,19 @@
+{
+  "name": "trust-issues",
+  "owner": {
+    "name": "Manpreet Singh",
+    "email": "info@singhlabs.dev",
+    "url": "https://github.com/manpreet171"
+  },
+  "description": "Your agent says it's done. It said that last time, too. — from Singh Labs.",
+  "plugins": [
+    {
+      "name": "trust-issues",
+      "source": "./plugins/trust-issues",
+      "description": "Holds the agent's own last message against the real diff, automatically, every time it finishes. Files it touched but never mentioned, guards it quietly removed, tests it silenced.",
+      "version": "1.0.0",
+      "category": "productivity",
+      "keywords": ["guardrails", "verification", "code-review", "vibe-coding", "git"]
+    }
+  ]
+}

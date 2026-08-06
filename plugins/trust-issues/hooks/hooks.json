@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/stop-check.mjs\"",
+            "statusMessage": "Trust issues: checking what it said against what it did",
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/stop-check.mjs\"",
+            "statusMessage": "Trust issues: checking the subagent's story",
+            "timeout": 20
+          }
+        ]
+      }
+    ]
+  }
+}

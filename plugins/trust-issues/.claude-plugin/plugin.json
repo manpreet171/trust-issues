@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "trust-issues",
+  "displayName": "Trust Issues",
+  "version": "1.0.0",
+  "description": "Your agent says it's done. This checks. Every time it finishes, the paragraph it just wrote gets held against the real diff — files it touched but never mentioned, guards it quietly removed, tests it silenced.",
+  "author": {
+    "name": "Manpreet Singh",
+    "email": "info@singhlabs.dev",
+    "url": "https://github.com/manpreet171"
+  },
+  "homepage": "https://singhlabs.dev/trust-issues/",
+  "repository": "https://github.com/manpreet171/trust-issues",
+  "license": "MIT",
+  "keywords": [
+    "guardrails",
+    "code-review",
+    "vibe-coding",
+    "verification",
+    "git",
+    "agents"
+  ]
+}
