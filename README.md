@@ -1,4 +1,8 @@
 <p align="center">
+  <img src="assets/mark.png" alt="A character squinting through a magnifying glass at an empty speech bubble" width="300">
+</p>
+
+<p align="center">
   <strong>Your agent says it's done.</strong><br>
   <strong>It said that last time, too.</strong>
 </p>
