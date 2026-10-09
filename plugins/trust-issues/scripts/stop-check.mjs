@@ -7,7 +7,7 @@
 // (c) run a command. Nobody does all three at 11pm. A Stop hook does it every
 // time, for free, and the human does nothing.
 import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync, mkdtempSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -67,8 +67,9 @@ if (claim.length < 80) bail();
 
 let report = '';
 let found = false;
+let dir;
 try {
-  const dir = mkdtempSync(join(tmpdir(), 'trust-'));
+  dir = mkdtempSync(join(tmpdir(), 'trust-'));
   const claimFile = join(dir, 'claim.md');
   writeFileSync(claimFile, claim);
   execFileSync(process.execPath, [join(HERE, 'plumb.mjs'), 'check', claimFile], {
@@ -82,6 +83,9 @@ try {
     report = String(err.stdout || '').trim();
     found = true;
   }
+} finally {
+  // The claim is the agent's own words; don't leave a copy in the temp folder.
+  if (dir) rmSync(dir, { recursive: true, force: true });
 }
 
 if (!found || !report) bail();

@@ -1,6 +1,6 @@
 {
   "name": "trust-issues",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Your agent says it's done. It said that last time, too.",
   "scripts": { "test": "node test/hook.test.mjs" },

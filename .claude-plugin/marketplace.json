@@ -11,7 +11,7 @@
       "name": "trust-issues",
       "source": "./plugins/trust-issues",
       "description": "Holds the agent's own last message against the real diff, automatically, every time it finishes. Files it touched but never mentioned, guards it quietly removed, tests it silenced.",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "category": "productivity",
       "keywords": ["guardrails", "verification", "code-review", "vibe-coding", "git"]
     }
