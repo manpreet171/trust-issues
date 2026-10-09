@@ -3,10 +3,11 @@
 // Zero dependencies. Node 18+.
 
 import { execFileSync } from 'node:child_process';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, realpathSync } from 'node:fs';
 import { basename } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const VERSION = '1.1.0';
+const VERSION = '1.1.1';
 
 // ---------------------------------------------------------------- git
 
@@ -324,19 +325,44 @@ function ghostSymbols(claim, base, head) {
     .split('\n')
     .filter((l) => l.startsWith('+'))
     .join('\n');
+  // Not git(): grep exits 1 when it finds nothing, which is the answer we
+  // want, not a failure. git() would treat that as fatal and kill the run.
+  const inBase = (s) => {
+    try {
+      return !!execFileSync('git', ['grep', '-l', '--fixed-strings', s, base],
+        { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    } catch { return false; }
+  };
   const ghosts = [];
   for (const sym of named) {
-    if (added.includes(sym)) continue;
-    // Not git(): grep exits 1 when it finds nothing, which is the answer we
-    // want, not a failure. git() would treat that as fatal and kill the run.
-    let hits = '';
-    try {
-      hits = execFileSync('git', ['grep', '-l', '--fixed-strings', sym, base],
-        { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
-    } catch { hits = ''; }
-    if (!hits.trim()) ghosts.push(sym);
+    // `Manager.adaptation_holds` is a class and a member. The PR may add only the
+    // member, and the code may spell it `self.adaptation_holds`, so the last part
+    // turning up is enough. A wrong "found nowhere" costs more than a missed one.
+    const probes = sym.includes('.') ? [sym, sym.split('.').pop()] : [sym];
+    if (probes.some((p) => p.length >= 3 && (added.includes(p) || inBase(p)))) continue;
+    ghosts.push(sym);
   }
   return ghosts;
+}
+
+// The diff needs the PR's base commit, not its branch. A stacked PR's base
+// branch is usually deleted once it merges, so fetching it by name fails; the
+// commit is still there, normally already pulled in with the PR's own head.
+function fetchBase(pr) {
+  const have = () => {
+    try {
+      execFileSync('git', ['cat-file', '-e', `${pr.base}^{commit}`], { stdio: 'ignore' });
+      return true;
+    } catch { return false; }
+  };
+  if (have()) return;
+  for (const ref of [pr.branch, pr.base]) {
+    try {
+      execFileSync('git', ['fetch', '--quiet', 'origin', ref], { stdio: ['ignore', 'pipe', 'pipe'] });
+    } catch { continue; }
+    if (have()) return;
+  }
+  die(`PR ${pr.label}: its base commit ${pr.base.slice(0, 12)} is not on origin any more (was ${pr.branch} deleted?).`);
 }
 
 function checkPr(argv, number) {
@@ -346,7 +372,7 @@ function checkPr(argv, number) {
   // against it, so this works on a fresh checkout with no setup.
   const head = `refs/plumb/pr-${number}`;
   git(['fetch', '--quiet', 'origin', `pull/${number}/head:${head}`, '--force']);
-  git(['fetch', '--quiet', 'origin', pr.branch]);
+  fetchBase(pr);
   const base = git(['merge-base', pr.base, head]).trim();
   if (!base) die(`cannot find a common ancestor for PR #${number}.`);
 
@@ -409,9 +435,20 @@ const USAGE = `plumb ${VERSION} — hold the agent's summary against what it act
 exit 0 clean · 1 findings · 2 usage error
 `;
 
-const [cmd, ...rest] = process.argv.slice(2);
-switch (cmd) {
-  case 'check': check(rest); break;
-  case 'version': case '--version': case '-v': console.log(VERSION); break;
-  default: console.log(USAGE); process.exit(cmd && cmd !== 'help' && cmd !== '--help' ? 2 : 0);
+// Run as a command, not when the test imports it. realpath, because npm's global
+// install reaches this file through a symlink.
+const isMain = (() => {
+  try { return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url)); }
+  catch { return false; }
+})();
+
+if (isMain) {
+  const [cmd, ...rest] = process.argv.slice(2);
+  switch (cmd) {
+    case 'check': check(rest); break;
+    case 'version': case '--version': case '-v': console.log(VERSION); break;
+    default: console.log(USAGE); process.exit(cmd && cmd !== 'help' && cmd !== '--help' ? 2 : 0);
+  }
 }
+
+export { ghostSymbols, fetchBase };
